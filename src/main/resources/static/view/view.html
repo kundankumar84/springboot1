@@ -1,0 +1,82 @@
+<html>
+   <head>
+      <meta charset = "ISO-8859-1"/>
+      <title>View Products</title>
+      <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      
+      <script>
+         $(document).ready(function(){
+            $.getJSON("http://localhost:9090/products", function(result){
+               $.each(result, function(key,value) {
+                  var id = value.id;
+                  var name = value.name;
+                  var markup = "<tr><td id = 'del'>" + id + "</td><td>" + name + "</td><td><input type='checkbox' name='record' value="+id+" /></td></tr>";
+                  $("table tbody").append(markup);
+               }); 
+            });
+            
+            $("button#create").click(function() {
+            	var ku1 = $("form input#id").val();
+            	var ku2 = $("form input#name").val();
+                var productmodel = {
+                   id : ku1,
+                   name : ku2
+                };
+                var requestJSON = JSON.stringify(productmodel);
+                $.ajax({
+                   type : "POST",
+                   url : "http://localhost:9090/products",
+                   headers : {
+                      "Content-Type" : "application/json"
+                   },
+                   data : requestJSON,
+                   success : function(data) {
+                      alert(data);
+                   },
+                   error : function(data) {
+                   }
+                });
+             });
+            
+            $("button#delete").click(function(){
+                $("table tbody").find('input[name="record"]').each(function(){
+                    if($(this).is(":checked")){
+                    	 var myUrl = "http://localhost:9090/products/" + this.value;
+                    	 $.ajax({
+                    		    url: myUrl,
+                    		    type: 'DELETE',
+                    		    success: function(result) {
+                    		    	location.reload();
+                    		    }
+                    		});
+                        
+                        
+                        
+                    }
+                });
+            });
+         });
+      </script>
+   </head>
+   
+   <body>
+      <form>
+        <input type="text" id="id" placeholder="Id"/>
+        <input type="text" id="name" placeholder="Name"/>
+        <button id="create"  class="add-row">Create</button>
+    </form>
+    
+    <table border="1" style="border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Select</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <button id="delete" type="button" class="delete-row">Delete Row</button>
+   </body>
+</html>
